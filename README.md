@@ -19,7 +19,7 @@ Um SOC completo, do jeito que um time de segurança realmente usaria no dia a di
 
 ### Outros projetos
 
-**[portfolio-leandro-react](https://github.com/omatosz/portfolio-leandro-react)** — meu site pessoal, feito em React, mostrando meus projetos e minha trajetória.
+**[portfolio-leandro-react](https://github.com/omatosz/portfolio-leandro-react)**, meu site pessoal, feito em React, mostrando meus projetos e minha trajetória.
 
 ---
 
@@ -33,11 +33,3 @@ Um SOC completo, do jeito que um time de segurança realmente usaria no dia a di
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
-
----
-
-<div align="center">
-
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=omatosz&show_icons=true&theme=dark&hide_border=true&count_private=true)
-
-</div>
