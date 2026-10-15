@@ -1,0 +1,67 @@
+name: Atualiza o perfil
+
+# Roda todo dia de madrugada, a cada push na main e quando você pedir na aba Actions.
+# O GitHub desliga workflows agendados depois de 60 dias sem atividade no repositório;
+# se isso acontecer, é só reativar na aba Actions.
+on:
+  schedule:
+    - cron: "17 6 * * *" # 06:17 UTC, 03:17 no horário de Brasília
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissão mínima: só precisa escrever na branch "saida".
+permissions:
+  contents: write
+
+concurrency:
+  group: perfil
+  cancel-in-progress: true
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixa este repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Baixa o repositório do Veryon, para contar linhas e commits
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: omatosz/veryon
+          path: veryon
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Instala o Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Gera a cobrinha do gráfico de contribuições
+        uses: Platane/snk/svg-only@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3.5.0
+        with:
+          github_user_name: omatosz
+          outputs: |
+            dist/cobrinha-bruta.svg?color_snake=#22d3ee&color_dots=#12233d,#164e63,#0e7490,#06b6d4,#67e8f9
+
+      - name: Gera os SVGs do perfil
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/gerar.py --saida dist --veryon veryon --cobrinha dist/cobrinha-bruta.svg
+
+      - name: Publica na branch saida
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm dist/cobrinha-bruta.svg
+          cd dist
+          git init -q -b saida
+          git config user.name "omatosz"
+          git config user.email "200835070+omatosz@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Atualiza os SVGs do perfil"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" saida

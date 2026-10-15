@@ -1,0 +1,91 @@
+{
+  "usuario": "omatosz",
+  "nome": "Leandro Matos",
+  "faixa": "BLUE TEAM EM FORMAÇÃO",
+  "frases": [
+    "estudante de ADS com foco em cibersegurança",
+    "blue team, SOC e honeypots",
+    "construí o Veryon, um SIEM do zero",
+    "aprendendo segurança na prática"
+  ],
+  "tecnologias_faixa": [
+    "COWRIE", "SIGMA", "MITRE ATT&CK", "NMAP", "NUCLEI", "ABUSEIPDB",
+    "VIRUSTOTAL", "OTX", "TIMESCALEDB", "FASTAPI", "REACT", "DOCKER"
+  ],
+  "links": {
+    "linkedin": "https://www.linkedin.com/in/leandromatossilva/",
+    "email": "mailto:lehleoooo@icloud.com",
+    "portfolio": "https://portfolio-leandro-react.vercel.app",
+    "landing": "https://omatosz.github.io/veryon/",
+    "veryon": "https://github.com/omatosz/veryon"
+  },
+  "veryon": {
+    "repositorio": "omatosz/veryon",
+    "titulo": "Veryon, do ataque ao bloqueio num SOC feito do zero",
+    "subtitulo": "Honeypot, detecção, inteligência de ameaças, prevenção e resposta, tudo num único docker compose.",
+    "numeros": {
+      "servicos": 12,
+      "sinais": 8,
+      "politicas": 10,
+      "trilhos": 7,
+      "testes": 15
+    },
+    "verificado_em": "2026-10-15",
+    "etapas": [
+      {"nome": "Honeypot", "detalhe": "cowrie"},
+      {"nome": "Coleta", "detalhe": "Windows, Linux"},
+      {"nome": "Detecção", "detalhe": "Sigma, ATT&CK"},
+      {"nome": "Vulnerab.", "detalhe": "Nmap, Nuclei"},
+      {"nome": "API", "detalhe": "8 sinais"},
+      {"nome": "Intel", "detalhe": "3 fontes"},
+      {"nome": "Prevenção", "detalhe": "10 políticas"},
+      {"nome": "Painel", "detalhe": "FastAPI, React"},
+      {"nome": "Resposta", "detalhe": "2 atuadores"},
+      {"nome": "Relatório", "detalhe": "PDF"}
+    ]
+  },
+  "marcos": [
+    "Honeypot SSH e Telnet",
+    "Motor de regras Sigma",
+    "Análise de tráfego de API",
+    "Prevenção com trilhos",
+    "Rastreamento de ator",
+    "Bloqueio em dois pontos",
+    "Retenção e compressão",
+    "Notificações por canal",
+    "Perfis analista e admin",
+    "Demonstração de um clique",
+    "Relatório em PDF",
+    "Pacote de deploy"
+  ],
+  "stack": [
+    {"slug": "python", "nome": "Python"},
+    {"slug": "fastapi", "nome": "FastAPI"},
+    {"slug": "sqlalchemy", "nome": "SQLAlchemy"},
+    {"slug": "typescript", "nome": "TypeScript"},
+    {"slug": "react", "nome": "React"},
+    {"slug": "vite", "nome": "Vite"},
+    {"slug": "tailwindcss", "nome": "Tailwind"},
+    {"slug": "postgresql", "nome": "PostgreSQL"},
+    {"slug": "timescale", "nome": "TimescaleDB"},
+    {"slug": "redis", "nome": "Redis"},
+    {"slug": "docker", "nome": "Docker"},
+    {"slug": "linux", "nome": "Linux"},
+    {"slug": "git", "nome": "Git"},
+    {"slug": "githubactions", "nome": "Actions"}
+  ],
+  "estudo": [
+    "SIEM", "Sigma", "MITRE ATT&CK", "Honeypots", "Threat intel",
+    "Resposta a incidentes", "Nmap", "Nuclei", "Segurança de redes"
+  ],
+  "repos_codigo": ["omatosz/veryon"],
+  "xp_por_nivel": 25,
+  "trofeus": [
+    {"id": "contribuicoes", "titulo": "Contribuições", "sub": "últimos 12 meses", "icone": "barras", "faixas": [1, 25, 100, 300, 700, 1500]},
+    {"id": "commits_veryon", "titulo": "Commits", "sub": "no Veryon", "icone": "commit", "faixas": [1, 10, 50, 200, 500, 1000]},
+    {"id": "linhas", "titulo": "Linhas de código", "sub": "no Veryon", "icone": "codigo", "faixas": [500, 3000, 20000, 60000, 150000, 400000]},
+    {"id": "repositorios", "titulo": "Repositórios", "sub": "públicos", "icone": "repo", "faixas": [1, 3, 10, 25, 60, 120]},
+    {"id": "linguagens", "titulo": "Linguagens", "sub": "nos repositórios", "icone": "chaves", "faixas": [1, 3, 6, 10, 15, 25]},
+    {"id": "testes", "titulo": "Testes", "sub": "automatizados no Veryon", "icone": "check", "faixas": [1, 10, 50, 150, 400, 1000]}
+  ]
+}

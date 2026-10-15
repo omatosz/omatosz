@@ -1,35 +1,44 @@
 <div align="center">
 
-# Leandro Matos
+<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/banner.svg" width="100%" alt="Leandro Matos, blue team em formação. Estudante de ADS com foco em cibersegurança, SOC e honeypots.">
 
-Entrando em segurança da informação aprendendo na prática. Gosto de construir os projetos do zero pra entender de verdade como cada peça funciona, não só decorar conceito.
+<br>
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/leandromatossilva/)
-[![Email](https://img.shields.io/badge/lehleoooo%40icloud.com-black?style=flat&logo=icloud&logoColor=white)](mailto:lehleoooo@icloud.com)
+<a href="https://www.linkedin.com/in/leandromatossilva/"><img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/btn-linkedin.svg" height="40" alt="LinkedIn"></a>
+<a href="mailto:lehleoooo@icloud.com"><img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/btn-email.svg" height="40" alt="E-mail"></a>
+<a href="https://portfolio-leandro-react.vercel.app"><img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/btn-portfolio.svg" height="40" alt="Portfólio"></a>
+<a href="https://omatosz.github.io/veryon/"><img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/btn-landing.svg" height="40" alt="Landing do Veryon"></a>
 
 </div>
 
----
+## Sobre mim
 
-### 🐍 Projeto em destaque: Veryon
+Sou estudante de Análise e Desenvolvimento de Sistemas e estou entrando em segurança da informação pelo lado prático. Gosto de construir os projetos do zero pra entender de verdade como cada peça funciona, não só decorar conceito. Meu foco é blue team (SOC, detecção e resposta a incidentes), e estudo o lado red team pra entender como o ataque pensa.
 
-Um SOC completo, do jeito que um time de segurança realmente usaria no dia a dia. Um honeypot recebe ataques reais de SSH e Telnet, um pipeline coleta e organiza os logs, uma camada de detecção gera os alertas e tudo é enriquecido com threat intelligence e mostrado em um dashboard. A parte que eu mais gosto de ter construído: resposta a incidente de verdade, o analista revisa o alerta e, se confirma a ameaça, o sistema bloqueia aquele IP direto no honeypot.
+## Projeto em destaque: Veryon
+
+<a href="https://github.com/omatosz/veryon"><img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/veryon.svg" width="100%" alt="Veryon: 12 serviços, 8 sinais de API, 10 políticas de prevenção, 7 trilhos de segurança, 15 testes e mais de 17 mil linhas de código."></a>
+
+O Veryon é um SOC/SIEM de laboratório que montei do zero. Um honeypot recebe ataques reais de SSH e Telnet, coletores leem os logs de Windows e Linux, um motor de regras Sigma gera os alertas e cada IP suspeito é cruzado com AbuseIPDB, VirusTotal e OTX. Ele também analisa o tráfego de API com oito sinais pontuados e tem uma camada de prevenção que nasce só observando: mostra o que faria antes de bloquear qualquer coisa e respeita sete trilhos de segurança, como a allowlist e a proibição de bloquear IP interno. Quando bloqueia, age em dois pontos ao mesmo tempo, no firewall do honeypot e no próprio backend. Tudo roda em containers com Docker Compose.
 
 **[Repositório](https://github.com/omatosz/veryon)** · **[Landing page](https://omatosz.github.io/veryon/)**
 
-### Outros projetos
+## Em números
+
+<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/github.svg" width="100%" alt="Números do GitHub: contribuições, dias ativos, sequências, repositórios e nível.">
+
+<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/trofeus.svg" width="100%" alt="Troféus com nota por contribuições, commits, linhas de código, repositórios, linguagens e testes, e os marcos do Veryon.">
+
+## Stack
+
+<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/stack.svg" width="100%" alt="Python, FastAPI, SQLAlchemy, TypeScript, React, Vite, Tailwind, PostgreSQL, TimescaleDB, Redis, Docker, Linux, Git e GitHub Actions. Em estudo: SIEM, Sigma, MITRE ATT&CK, honeypots, threat intel, resposta a incidentes, Nmap, Nuclei e segurança de redes.">
+
+## Atividade
+
+<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/cobrinha.svg" width="100%" alt="Uma cobrinha percorrendo o gráfico de contribuições.">
+
+## Outros projetos
 
 **[portfolio-leandro-react](https://github.com/omatosz/portfolio-leandro-react)**, meu site pessoal, feito em React, mostrando meus projetos e minha trajetória.
 
----
-
-### Com o que eu trabalho
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+<sub>Os cartões acima são SVGs gerados por um script deste repositório (`scripts/gerar.py`) e atualizados todo dia por uma GitHub Action.</sub>
