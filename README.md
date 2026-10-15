@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/banner.svg" width="100%" alt="Leandro Matos, blue team em formação. Estudante de ADS com foco em cibersegurança, SOC e honeypots.">
+<img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/banner.svg" width="100%" alt="Leandro Matos, analista e desenvolvedor backend com foco em cibersegurança, blue team e red team.">
 
 <br>
 
@@ -13,13 +13,15 @@
 
 ## Sobre mim
 
-Sou estudante de Análise e Desenvolvimento de Sistemas e estou entrando em segurança da informação pelo lado prático. Gosto de construir os projetos do zero pra entender de verdade como cada peça funciona, não só decorar conceito. Meu foco é blue team (SOC, detecção e resposta a incidentes), e estudo o lado red team pra entender como o ataque pensa.
+Sou analista e desenvolvedor backend, formado em Análise e Desenvolvimento de Sistemas, com foco em cibersegurança. Me especializo em blue team (monitoramento, detecção e resposta a incidentes) e em red team (técnicas de ataque e exploração de vulnerabilidades). Construo projetos próprios de ponta a ponta para dominar cada camada da solução, e o Veryon, um SOC/SIEM completo, é o resultado desse método.
 
 ## Projeto em destaque: Veryon
 
 <a href="https://github.com/omatosz/veryon"><img src="https://raw.githubusercontent.com/omatosz/omatosz/saida/veryon.svg" width="100%" alt="Veryon: 12 serviços, 8 sinais de API, 10 políticas de prevenção, 7 trilhos de segurança, 15 testes e mais de 17 mil linhas de código."></a>
 
-O Veryon é um SOC/SIEM de laboratório que montei do zero. Um honeypot recebe ataques reais de SSH e Telnet, coletores leem os logs de Windows e Linux, um motor de regras Sigma gera os alertas e cada IP suspeito é cruzado com AbuseIPDB, VirusTotal e OTX. Ele também analisa o tráfego de API com oito sinais pontuados e tem uma camada de prevenção que nasce só observando: mostra o que faria antes de bloquear qualquer coisa e respeita sete trilhos de segurança, como a allowlist e a proibição de bloquear IP interno. Quando bloqueia, age em dois pontos ao mesmo tempo, no firewall do honeypot e no próprio backend. Tudo roda em containers com Docker Compose.
+O Veryon é um SOC/SIEM completo, desenvolvido como projeto de portfólio e de aplicação prática de blue team. A plataforma coleta eventos de um honeypot SSH e Telnet (Cowrie) e dos logs de segurança de Windows e Linux, aplica um motor próprio de regras no formato Sigma e enriquece cada IP suspeito com AbuseIPDB, VirusTotal e OTX. Analisa também o tráfego de API com oito sinais pontuados, executa varreduras de vulnerabilidade com Nmap e Nuclei e gera relatórios em PDF.
+
+A camada de prevenção reúne dez políticas e sete trilhos de segurança. Toda política opera inicialmente em modo de observação e simula a ação antes de ser ativada, e a allowlist e a proteção de endereços internos prevalecem sobre qualquer regra. O bloqueio atua em dois pontos simultâneos, no firewall do honeypot e no backend. A solução inclui ainda notificações por canal, perfis de acesso (analista e administrador) e retenção e compressão dos dados, com API em FastAPI, painel em React e serviços em containers orquestrados com Docker Compose.
 
 **[Repositório](https://github.com/omatosz/veryon)** · **[Landing page](https://omatosz.github.io/veryon/)**
 

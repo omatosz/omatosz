@@ -1,12 +1,12 @@
 {
   "usuario": "omatosz",
   "nome": "Leandro Matos",
-  "faixa": "BLUE TEAM EM FORMAÇÃO",
+  "faixa": "BLUE E RED TEAM",
   "frases": [
-    "estudante de ADS com foco em cibersegurança",
-    "blue team, SOC e honeypots",
-    "construí o Veryon, um SIEM do zero",
-    "aprendendo segurança na prática"
+    "analista e desenvolvedor backend",
+    "formado em ADS, foco em cibersegurança",
+    "especializações em blue e red team",
+    "Veryon, um SOC/SIEM completo"
   ],
   "tecnologias_faixa": [
     "COWRIE", "SIGMA", "MITRE ATT&CK", "NMAP", "NUCLEI", "ABUSEIPDB",
@@ -21,8 +21,8 @@
   },
   "veryon": {
     "repositorio": "omatosz/veryon",
-    "titulo": "Veryon, do ataque ao bloqueio num SOC feito do zero",
-    "subtitulo": "Honeypot, detecção, inteligência de ameaças, prevenção e resposta, tudo num único docker compose.",
+    "titulo": "Veryon, um SOC/SIEM completo, do ataque ao bloqueio",
+    "subtitulo": "Honeypot, detecção, inteligência de ameaças, prevenção e resposta, orquestrados com Docker Compose.",
     "numeros": {
       "servicos": 12,
       "sinais": 8,
