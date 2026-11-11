@@ -1,25 +1,15 @@
-"""Faixa de tecnologias com ícones e a lista do que está em estudo."""
+"""Stack: os ícones das tecnologias (acendem em vermelho um por um, como o mouse
+passando por cima da faixa da foto no site) e a tabela de ferramentas por área,
+igual à do Sobre do portfólio.
+"""
 import json
 import os
 
-from base import CSS_BASE, P, esc, f, painel, svg
+from base import MARGEM, LARGURA, P, cartao, f, movimento, svg
+from texto import Tinta, altura_cap, quebrar
 
-LARGURA = 1200
-
-CSS = CSS_BASE
-
-
-def _entra(atraso, corpo):
-    """Grupo que aparece em fade depois de `atraso` segundos e fica."""
-    return (f'<g opacity="0"><animate attributeName="opacity" from="0" to="1" begin="{atraso:.2f}s" '
-            f'dur="0.6s" fill="freeze"/>{corpo}</g>')
-
-
-def _flutua(atraso, corpo):
-    """Sobe e desce 5 px devagar, em laço."""
-    return (f'<g><animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" '
-            f'dur="4.2s" begin="{atraso:.2f}s" repeatCount="indefinite" calcMode="spline" '
-            f'keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>{corpo}</g>')
+CICLO = 12
+POR_LINHA = 7
 
 
 def _icones():
@@ -29,39 +19,48 @@ def _icones():
 
 
 def desenhar(perfil, dados=None):
+    t = Tinta()
     icones = _icones()
-    stack = perfil["stack"]
-    passo = 1104 / len(stack)
-    itens = []
-    for i, item in enumerate(stack):
+    s = perfil["stack"]
+    cabeca = t.texto(f'[ {s["titulo"]} ]'.upper(), MARGEM, 70, "mono", 16, P["vermelho"], 0.18)
+
+    larg = (LARGURA - 2 * MARGEM) / POR_LINHA
+    lado = 36
+    itens, acesos = [], []
+    for i, item in enumerate(s["icones"]):
         icone = icones[item["slug"]]
-        cx = 48 + passo * (i + 0.5)
-        medalha = (
-            f'<circle cx="{f(cx)}" cy="116" r="31" fill="{P["painel2"]}" fill-opacity="0.7" stroke="{P["linha"]}"/>'
-            f'<g transform="translate({f(cx - 16)} 100) scale(1.3333)"><path d="{icone["d"]}" fill="{icone["cor"]}"/></g>'
+        cx = MARGEM + (i % POR_LINHA) * larg + larg / 2
+        y = 108 + (i // POR_LINHA) * 112
+        desenho = (f'<g transform="translate({f(cx - lado / 2)} {y}) scale({lado / 24:.4f})">'
+                   f'<path d="{icone["d"]}"/></g>')
+        itens.append(f'<g fill="{P["creme"]}" fill-opacity="0.8">{desenho}</g>'
+                     + t.texto(item["nome"].upper(), cx, y + lado + 30, "mono", 12, P["creme500"], 0.18, "middle"))
+        ini = 1.0 + i * 0.32
+        kt = ";".join(f"{v / CICLO:.4f}" for v in (0, ini, ini + 0.3, ini + 0.9, ini + 1.4, CICLO))
+        acesos.append(
+            f'<g fill="{P["vermelho_claro"]}" opacity="0">{desenho}'
+            f'<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="{kt}" dur="{CICLO}s" '
+            f'repeatCount="indefinite"/></g>'
         )
-        nome = f'<text class="m" x="{f(cx)}" y="176" text-anchor="middle" font-size="12.5" fill="{P["mudo"]}">{esc(item["nome"])}</text>'
-        itens.append(_entra(i * 0.07, _flutua((i * 0.37) % 4, medalha) + nome))
-    chips = []
-    x, y = 48, 246
-    for i, texto in enumerate(perfil["estudo"]):
-        largura = len(texto) * 8.6 + 34
-        if x + largura > 1152:
-            x, y = 48, y + 44
-        chips.append(_entra(1 + i * 0.07,
-            f'<rect x="{f(x)}" y="{y}" width="{f(largura)}" height="32" rx="16" fill="none" stroke="{P["ciano"]}" stroke-opacity="0.5"/>'
-            f'<text class="m" x="{f(x + largura / 2)}" y="{y + 21}" text-anchor="middle" font-size="13.5" fill="{P["ciano_claro"]}">{esc(texto)}</text>'))
-        x += largura + 10
-    altura = y + 32 + 34
-    defs, fundo = painel(LARGURA, altura, 22, "rc")
-    corpo = (
-        fundo
-        + '<g clip-path="url(#rc)">'
-        f'<text class="m" x="48" y="52" font-size="13" letter-spacing="2" fill="{P["ciano"]}">COM O QUE EU CONSTRUO</text>'
-        + "".join(itens)
-        + f'<text class="m" x="48" y="224" font-size="13" letter-spacing="2" fill="{P["ciano"]}">EM ESTUDO</text>'
-        + "".join(chips)
-        + "</g>"
-    )
-    return svg(LARGURA, altura, "Stack e estudos",
-               "Tecnologias usadas no Veryon e a lista de temas de segurança em estudo.", corpo, defs, CSS)
+    linhas_icones = -(-len(s["icones"]) // POR_LINHA)
+    y_tabela = 108 + linhas_icones * 112 + 40
+
+    # tabela: nome da área em Anybody, itens em mono separados por barra
+    x_itens = MARGEM + 300
+    larg_itens = LARGURA - MARGEM - x_itens
+    linhas, y = [], y_tabela
+    linhas.append(f'<path d="M{MARGEM} {y + 0.5}H{LARGURA - MARGEM}" stroke="{P["linha"]}"/>')
+    for g in s["grupos"]:
+        texto_itens = quebrar("  /  ".join(g["itens"]).upper(), "mono", 14, larg_itens, 0.12)
+        alt = max(68, 44 + len(texto_itens) * 22)
+        base_nome = y + alt / 2 + altura_cap("titulo75", 30) / 2
+        linhas.append(t.texto(g["grupo"], MARGEM, base_nome, "titulo75", 30, P["creme"]))
+        topo_itens = y + alt / 2 - (len(texto_itens) * 22) / 2 + 15
+        for k, linha in enumerate(texto_itens):
+            linhas.append(t.texto(linha, x_itens, topo_itens + k * 22, "mono", 14, P["creme300"], 0.12))
+        y += alt
+        linhas.append(f'<path d="M{MARGEM} {f(y + 0.5)}H{LARGURA - MARGEM}" stroke="{P["linha"]}"/>')
+    altura = round(y + 56)
+    corpo = cartao(LARGURA, altura) + cabeca + "".join(itens) + movimento("".join(acesos), "") + "".join(linhas)
+    alt = "; ".join(f'{g["grupo"]}: {", ".join(g["itens"])}' for g in s["grupos"]) + "."
+    return svg(LARGURA, altura, "Ferramentas e tecnologias", alt, corpo, t.defs())

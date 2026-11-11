@@ -1,73 +1,76 @@
-"""Cartão de números do GitHub: contadores, sequências e nível por XP."""
-import math
+"""Cartão de números do GitHub: a grade de números contando, como as do
+portfólio, e o nível por contribuições numa barra segmentada que enche.
+"""
+from animacao import conta, janela
+from base import MARGEM, LARGURA, P, cartao, ciclo, f, milhar, movimento, svg
+from texto import Tinta, altura_cap, quebrar
 
-from animacao import odometro
-from base import CSS_BASE, P, ciclo, esc, f, painel, svg
-
-LARGURA, ALTURA = 1200, 330
-CICLO = 16
-
-
-def _tiles(dados):
-    itens = [
-        (dados["contribuicoes"], "contribuições em 12 meses", P["ciano_claro"]),
-        (dados["dias_ativos"], "dias com atividade", P["verde"]),
-        (dados["sequencia_atual"], "dias seguidos agora", P["ambar"]),
-        (dados["maior_sequencia"], "maior sequência de dias", P["violeta"]),
-        (dados["repositorios"], "repositórios públicos", "#7dd3fc"),
-        (dados["meses_conta"], "meses no GitHub", P["ciano_claro"]),
-    ]
-    caixas, numeros = [], []
-    for i, (valor, rotulo, cor) in enumerate(itens):
-        x = 48 + (i % 3) * 252
-        y = 88 + (i // 3) * 112
-        caixas.append(
-            f'<rect x="{x}" y="{y}" width="238" height="100" rx="14" fill="{P["painel2"]}" fill-opacity="0.55" stroke="{P["linha"]}"/>'
-            f'<text class="s" x="{x + 22}" y="{y + 84}" font-size="13.5" fill="{P["mudo"]}">{esc(rotulo)}</text>'
-        )
-        corpo, _ = odometro(str(valor), x + 22, y + 52, 40, cor, CICLO, esquerda=True)
-        numeros.append(corpo)
-    return "".join(caixas) + ciclo(CICLO, "".join(numeros))
+CICLO = 20
+ALTURA = 432
 
 
-def _nivel(perfil, dados):
+def _grade(t, itens, x0, y0, larg):
+    cw, ch = larg / 3, 136
+    linhas = "".join(f"M{f(x0)} {f(y0 + k * ch + 0.5)}H{f(x0 + larg)}" for k in range(3))
+    linhas += "".join(f"M{f(x0 + k * cw + 0.5)} {f(y0)}V{f(y0 + 2 * ch)}" for k in range(4))
+    animados, parados, rotulos = [], [], []
+    for i, (valor, rotulo) in enumerate(itens):
+        cx, cy = x0 + (i % 3) * cw + 22, y0 + (i // 3) * ch
+        animados.append(conta(t, valor, cx, cy + 70, "titulo70", 60, P["vermelho"], CICLO))
+        parados.append(t.texto(milhar(valor), cx, cy + 70, "titulo70", 60, P["vermelho"]))
+        for k, linha in enumerate(quebrar(rotulo.upper(), "mono", 13, cw - 44, 0.18)[:2]):
+            rotulos.append(t.texto(linha, cx, cy + 100 + k * 19, "mono", 13, P["creme500"], 0.18))
+    return (f'<path d="{linhas}" stroke="{P["linha"]}"/>'
+            + movimento(ciclo(CICLO, "".join(animados)), "".join(parados)) + "".join(rotulos))
+
+
+def _nivel(t, perfil, dados, x0, y0, larg, alt):
     por_nivel = perfil["xp_por_nivel"]
     xp = dados["xp_total"]
     nivel = xp // por_nivel + 1
-    progresso = (xp % por_nivel) / por_nivel
-    faltam = por_nivel - xp % por_nivel
-    cx, cy, raio = 991, 178, 56
-    circ = 2 * math.pi * raio
-    corpo_nivel, _ = odometro(str(nivel), cx, cy + 16, 44, P["texto"], CICLO)
-    anel = (
-        f'<circle cx="{cx}" cy="{cy}" r="{raio}" fill="none" stroke="{P["linha"]}" stroke-width="12"/>'
-        f'<circle cx="{cx}" cy="{cy}" r="{raio}" fill="none" stroke="{P["ciano"]}" stroke-width="12" stroke-linecap="round" '
-        f'stroke-dasharray="{f(circ)}" stroke-dashoffset="{f(circ)}" transform="rotate(-90 {cx} {cy})">'
-        f'<animate attributeName="stroke-dashoffset" dur="{CICLO}s" repeatCount="indefinite" calcMode="spline" '
-        f'keyTimes="0;0.03;0.2;1" values="{f(circ)};{f(circ)};{f(circ * (1 - progresso))};{f(circ * (1 - progresso))}" '
-        'keySplines="0 0 1 1;0.2 0.8 0.2 1;0 0 1 1"/></circle>'
-    )
-    return (
-        f'<rect x="804" y="88" width="348" height="212" rx="14" fill="{P["painel2"]}" fill-opacity="0.55" stroke="{P["linha"]}"/>'
-        f'<text class="m" x="{cx}" y="{cy - 20}" text-anchor="middle" font-size="12" letter-spacing="2" fill="{P["fraco"]}">NÍVEL</text>'
-        + ciclo(CICLO, anel + corpo_nivel)
-        + f'<text class="s" x="{cx}" y="266" text-anchor="middle" font-size="14" fill="{P["mudo"]}">faltam {faltam} contribuições para o nível {nivel + 1}</text>'
-        f'<text class="m" x="{cx}" y="286" text-anchor="middle" font-size="12" fill="{P["fraco"]}">{dados["xp_total"]} contribuições desde que a conta existe</text>'
-    )
+    feito = xp % por_nivel
+    faltam = por_nivel - feito
+    x = x0 + 26
+    caixa = f'<rect x="{f(x0 + 0.5)}" y="{f(y0 + 0.5)}" width="{f(larg - 1)}" height="{f(alt - 1)}" fill="none" stroke="{P["linha"]}"/>'
+    rotulo = t.texto("NÍVEL", x, y0 + 40, "mono", 13, P["creme500"], 0.18)
+    numero = t.texto(f"{nivel:02d}", x, y0 + 52 + altura_cap("titulo", 120), "titulo", 120, P["creme"])
+    # barra com um segmento por contribuição do nível; os feitos acendem em fila
+    vao = 3
+    sw = (larg - 52 - vao * (por_nivel - 1)) / por_nivel
+    y_barra = y0 + 178
+    base, acesos, parados = [], [], []
+    for k in range(por_nivel):
+        sx = x + k * (sw + vao)
+        base.append(f'<rect x="{f(sx)}" y="{y_barra}" width="{f(sw)}" height="22" fill="{P["linha"]}"/>')
+        if k < feito:
+            acesos.append(f'<rect x="{f(sx)}" y="{y_barra}" width="{f(sw)}" height="22" fill="{P["vermelho"]}" '
+                          f'visibility="hidden">{janela(CICLO, 0.5 + k * 0.06, CICLO - 0.6)}</rect>')
+            parados.append(f'<rect x="{f(sx)}" y="{y_barra}" width="{f(sw)}" height="22" fill="{P["vermelho"]}"/>')
+    textos = (t.texto(f"FALTAM {faltam} PARA O NÍVEL {nivel + 1}", x, y_barra + 50, "mono", 13, P["creme300"], 0.18)
+              + t.texto(f"{milhar(xp)} CONTRIBUIÇÕES NO TOTAL", x, y_barra + 71, "mono", 13, P["creme500"], 0.18))
+    return caixa + rotulo + numero + "".join(base) + movimento("".join(acesos), "".join(parados)) + textos
 
 
 def desenhar(perfil, dados):
-    defs, fundo = painel(LARGURA, ALTURA, 22, "rc")
+    t = Tinta()
     atualizado = dados["gerado_em"].strftime("%d/%m/%Y")
+    cabeca = (t.texto("[ GITHUB EM NÚMEROS ]", MARGEM, 70, "mono", 16, P["vermelho"], 0.18)
+              + t.texto(f"ATUALIZADO EM {atualizado}", LARGURA - MARGEM, 70, "mono", 13, P["creme500"], 0.18, "end"))
+    itens = [
+        (dados["contribuicoes"], "contribuições em 12 meses"),
+        (dados["dias_ativos"], "dias com atividade"),
+        (dados["sequencia_atual"], "dias seguidos agora"),
+        (dados["maior_sequencia"], "maior sequência de dias"),
+        (dados["repositorios"], "repositórios públicos"),
+        (dados["meses_conta"], "meses no GitHub"),
+    ]
+    y0 = 104
+    larg_grade = 756
     corpo = (
-        fundo
-        + '<g clip-path="url(#rc)">'
-        f'<text class="m" x="48" y="52" font-size="13" letter-spacing="2" fill="{P["ciano"]}">GITHUB EM NÚMEROS</text>'
-        f'<text class="m" x="1152" y="52" text-anchor="end" font-size="12" fill="{P["fraco"]}">atualizado em {atualizado}</text>'
-        + _tiles(dados)
-        + _nivel(perfil, dados)
-        + "</g>"
+        cartao(LARGURA, ALTURA)
+        + cabeca
+        + _grade(t, itens, MARGEM, y0, larg_grade)
+        + _nivel(t, perfil, dados, MARGEM + larg_grade + 32, y0, LARGURA - 2 * MARGEM - larg_grade - 32, 272)
     )
-    return svg(LARGURA, ALTURA, "Números do GitHub de omatosz",
-               "Contribuições, dias ativos, sequências, repositórios e nível calculado pelas contribuições.",
-               corpo, defs, CSS_BASE)
+    alt = ", ".join(f"{milhar(v)} {r}" for v, r in itens)
+    return svg(LARGURA, ALTURA, "Números do GitHub de omatosz", alt + ".", corpo, t.defs())

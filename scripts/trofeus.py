@@ -1,13 +1,13 @@
-"""Troféus com nota (D a SSS) e os marcos do Veryon como selos."""
-from animacao import odometro
-from base import CSS_BASE, P, ciclo, esc, f, milhar, painel, svg
+"""Troféus com nota (D a SSS) e os marcos do Veryon, no visual do portfólio:
+nota gigante em vermelho, valor contando, barra até a próxima nota e a lista de
+marcos com o quadradinho vermelho dos tópicos do site.
+"""
+from animacao import conta
+from base import MARGEM, LARGURA, P, cartao, ciclo, f, milhar, movimento, svg
+from texto import Tinta, altura_cap, largura
 
-LARGURA = 1200
-CICLO = 16
+CICLO = 20
 NOTAS = ["C", "B", "A", "S", "SS", "SSS"]
-COR_NOTA = {"D": "#64748b", "C": "#94a3b8", "B": "#38bdf8", "A": "#34d399", "S": "#fbbf24", "SS": "#fb923c", "SSS": "#f472b6"}
-
-CSS = CSS_BASE
 
 
 def nota_de(valor, faixas):
@@ -22,100 +22,87 @@ def nota_de(valor, faixas):
     return nota, indice, alvo, base
 
 
-def _icone(nome, cor):
-    tracos = f'fill="none" stroke="{cor}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"'
-    if nome == "barras":
-        return (f'<rect x="-16" y="2" width="9" height="13" rx="2" fill="{cor}"/>'
-                f'<rect x="-4.5" y="-6" width="9" height="21" rx="2" fill="{cor}"/>'
-                f'<rect x="7" y="-15" width="9" height="30" rx="2" fill="{cor}"/>')
-    if nome == "commit":
-        return f'<circle r="7" {tracos}/><path d="M-20 0H-7M7 0H20" {tracos}/>'
-    if nome == "codigo":
-        return f'<text class="m" y="7" text-anchor="middle" font-size="20" font-weight="700" fill="{cor}">&lt;/&gt;</text>'
-    if nome == "repo":
-        return f'<path d="M-11 -15H10a3 3 0 0 1 3 3V15H-8a3 3 0 0 1-3-3Z" {tracos}/><path d="M-11 8H13" {tracos}/>'
-    if nome == "chaves":
-        return f'<text class="m" y="8" text-anchor="middle" font-size="24" font-weight="700" fill="{cor}">{{ }}</text>'
-    return f'<path d="M-13 1L-4 11L14 -11" {tracos}/>'  # check
-
-
 def _valores(perfil, dados):
+    testes = next(n["valor"] for n in perfil["veryon"]["numeros"] if n["chave"] == "testes")
     return {
         "contribuicoes": dados["contribuicoes"],
         "commits_veryon": dados["commits_veryon"] or 0,
         "linhas": dados["linhas_total"],
         "repositorios": dados["repositorios"],
         "linguagens": dados["linguagens"],
-        "testes": perfil["veryon"]["numeros"]["testes"],
+        "testes": testes,
     }
 
 
-def _tiles(perfil, dados):
+def _trofeus(t, perfil, dados, y0):
     valores = _valores(perfil, dados)
-    caixas, dinamico = [], []
-    for i, t in enumerate(perfil["trofeus"]):
-        valor = valores[t["id"]]
-        nota, indice, alvo, base = nota_de(valor, t["faixas"])
-        cor = COR_NOTA[nota]
-        x = 48 + i * 186
-        y = 80
-        proximo = NOTAS[indice + 1] if indice + 1 < len(NOTAS) else None
-        legenda = f"{proximo} em {milhar(alvo)}" if alvo else "nota máxima"
+    vao = 16
+    w = (LARGURA - 2 * MARGEM - 2 * vao) / 3
+    h = 184
+    caixas, animados, parados = [], [], []
+    for i, tr in enumerate(perfil["trofeus"]):
+        valor = valores[tr["id"]]
+        nota, indice, alvo, base = nota_de(valor, tr["faixas"])
+        proxima = NOTAS[indice + 1] if indice + 1 < len(NOTAS) else None
+        legenda = f"{proxima} EM {milhar(alvo)}" if alvo else "NOTA MÁXIMA"
         progresso = 1.0 if not alvo else max(0.0, min(1.0, (valor - base) / (alvo - base)))
-        largura_nota = 16 + 14 * len(nota)
+        x, y = MARGEM + (i % 3) * (w + vao), y0 + (i // 3) * (h + vao)
+        xi = x + 24
+        # a nota fica à direita, do tamanho que couber sem encostar no valor
+        larg_valor = largura(milhar(valor), "titulo70", 52)
+        tam_nota = 116
+        while x + w - 24 - largura(nota, "titulo", tam_nota) < xi + larg_valor + 20 and tam_nota > 60:
+            tam_nota -= 4
+        larg_barra = min(210, w - 48 - largura(nota, "titulo", tam_nota) - 24)
         caixas.append(
-            f'<rect x="{x}" y="{y}" width="174" height="238" rx="16" fill="{P["painel2"]}" fill-opacity="0.55" stroke="{P["linha"]}"/>'
-            f'<circle cx="{x + 87}" cy="{y + 54}" r="32" fill="{P["painel"]}" stroke="{cor}" stroke-width="2.5"/>'
-            f'<g transform="translate({x + 87} {y + 54})">{_icone(t["icone"], cor)}</g>'
-            f'<rect x="{x + 174 - largura_nota - 12}" y="{y + 12}" width="{largura_nota}" height="26" rx="8" fill="{cor}"/>'
-            f'<text class="m" x="{x + 174 - largura_nota / 2 - 12}" y="{y + 31}" text-anchor="middle" font-size="16" font-weight="800" fill="#06101d">{nota}</text>'
-            f'<text class="s" x="{x + 87}" y="{y + 150}" text-anchor="middle" font-size="15.5" font-weight="700" fill="{P["texto"]}">{esc(t["titulo"])}</text>'
-            f'<text class="s" x="{x + 87}" y="{y + 170}" text-anchor="middle" font-size="12.5" fill="{P["mudo"]}">{esc(t["sub"])}</text>'
-            f'<rect x="{x + 20}" y="{y + 190}" width="134" height="8" rx="4" fill="{P["linha"]}"/>'
-            f'<text class="m" x="{x + 87}" y="{y + 222}" text-anchor="middle" font-size="12" fill="{P["fraco"]}">{esc(legenda)}</text>'
+            f'<rect x="{f(x + 0.5)}" y="{f(y + 0.5)}" width="{f(w - 1)}" height="{h - 1}" fill="none" stroke="{P["linha"]}"/>'
+            + t.texto(tr["titulo"], xi, y + 46, "titulo75", 30, P["creme"])
+            + t.texto(tr["sub"].upper(), xi, y + 70, "mono", 12, P["creme500"], 0.18)
+            + t.texto(nota, x + w - 24, y + 40 + altura_cap("titulo", tam_nota), "titulo", tam_nota, P["vermelho"],
+                      ancora="end")
+            + f'<rect x="{f(xi)}" y="{y + 146}" width="{f(larg_barra)}" height="6" fill="{P["linha"]}"/>'
+            + t.texto(legenda, xi, y + 170, "mono", 12, P["creme500"], 0.18)
         )
-        numero, _ = odometro(milhar(valor), x + 87, y + 125, 32, P["texto"], CICLO)
-        barra = (
-            f'<svg x="{x + 20}" y="{y + 190}" width="0" height="8">'
-            f'<animate attributeName="width" dur="{CICLO}s" repeatCount="indefinite" calcMode="spline" '
-            f'keyTimes="0;0.04;0.2;1" values="0;0;{f(134 * progresso)};{f(134 * progresso)}" keySplines="0 0 1 1;0.2 0.8 0.2 1;0 0 1 1"/>'
-            f'<rect width="134" height="8" rx="4" fill="{cor}"/></svg>'
+        cheia = larg_barra * progresso
+        animados.append(
+            conta(t, valor, xi, y + 128, "titulo70", 52, P["creme"], CICLO)
+            + f'<rect x="{f(xi)}" y="{y + 146}" width="0" height="6" fill="{P["vermelho"]}">'
+              f'<animate attributeName="width" dur="{CICLO}s" repeatCount="indefinite" calcMode="spline" '
+              f'keyTimes="0;0.01;0.11;1" values="0;0;{f(cheia)};{f(cheia)}" '
+              f'keySplines="0 0 1 1;0.22 1 0.36 1;0 0 1 1"/></rect>'
         )
-        dinamico.append(numero + barra)
-    return "".join(caixas) + ciclo(CICLO, "".join(dinamico))
+        parados.append(t.texto(milhar(valor), xi, y + 128, "titulo70", 52, P["creme"])
+                       + f'<rect x="{f(xi)}" y="{y + 146}" width="{f(cheia)}" height="6" fill="{P["vermelho"]}"/>')
+    fundo = y0 + 2 * h + vao
+    return "".join(caixas) + movimento(ciclo(CICLO, "".join(animados)), "".join(parados)), fundo
 
 
-def _marcos(perfil):
-    chips = []
-    x, y = 48, 372
-    for i, texto in enumerate(perfil["marcos"]):
-        largura = len(texto) * 7.9 + 50
-        if x + largura > 1152:
-            x, y = 48, y + 44
-        chips.append(
-            f'<g opacity="0"><animate attributeName="opacity" from="0" to="1" begin="{i * 0.08:.2f}s" dur="0.5s" fill="freeze"/>'
-            f'<rect x="{f(x)}" y="{y}" width="{f(largura)}" height="34" rx="17" fill="{P["verde"]}" fill-opacity="0.08" stroke="{P["verde"]}" stroke-opacity="0.45"/>'
-            f'<path d="M{f(x + 16)} {y + 17}l4 4 8-9" fill="none" stroke="{P["verde"]}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
-            f'<text class="s" x="{f(x + 38)}" y="{y + 22}" font-size="14" fill="{P["texto"]}">{esc(texto)}</text></g>'
-        )
-        x += largura + 10
-    return "".join(chips), y + 34
+def _marcos(t, marcos, y0):
+    colunas = 3
+    larg = (LARGURA - 2 * MARGEM) / colunas
+    linhas = -(-len(marcos) // colunas)
+    itens = []
+    for i, texto in enumerate(marcos):
+        col, lin = i // linhas, i % linhas
+        x, y = MARGEM + col * larg, y0 + lin * 38
+        itens.append(f'<rect x="{f(x)}" y="{f(y - 11)}" width="7" height="7" fill="{P["vermelho"]}"/>'
+                     + t.texto(texto, x + 20, y, "texto", 18, P["creme100"]))
+    return "".join(itens), y0 + (linhas - 1) * 38
 
 
 def desenhar(perfil, dados):
-    marcos, fim = _marcos(perfil)
-    altura = fim + 36
-    defs, fundo = painel(LARGURA, altura, 22, "rc")
-    corpo = (
-        fundo
-        + '<g clip-path="url(#rc)">'
-        f'<text class="m" x="48" y="52" font-size="13" letter-spacing="2" fill="{P["ciano"]}">TROFÉUS</text>'
-        f'<text class="m" x="1152" y="52" text-anchor="end" font-size="12" fill="{P["fraco"]}">nota por faixa de valor, as faixas estão em perfil.json</text>'
-        + _tiles(perfil, dados)
-        + f'<text class="m" x="48" y="352" font-size="13" letter-spacing="2" fill="{P["ciano"]}">MARCOS DO VERYON</text>'
-        + marcos
-        + "</g>"
-    )
-    return svg(LARGURA, altura, "Troféus e marcos",
-               "Troféus com nota de D a SSS para contribuições, commits, linhas, repositórios, linguagens e testes, e os marcos do Veryon.",
-               corpo, defs, CSS)
+    t = Tinta()
+    cabeca = (t.texto("[ TROFÉUS ]", MARGEM, 70, "mono", 16, P["vermelho"], 0.18)
+              + t.texto("NOTA POR FAIXA DE VALOR, DE D A SSS", LARGURA - MARGEM, 70, "mono", 13, P["creme500"],
+                        0.18, "end"))
+    trofeus, fundo = _trofeus(t, perfil, dados, 104)
+    y_marcos = fundo + 72
+    rotulo = t.texto("[ MARCOS DO VERYON ]", MARGEM, y_marcos, "mono", 16, P["vermelho"], 0.18)
+    marcos, fim = _marcos(t, perfil["marcos"], y_marcos + 52)
+    altura = round(fim + 52)
+    corpo = cartao(LARGURA, altura) + cabeca + trofeus + rotulo + marcos
+    valores = _valores(perfil, dados)
+    alt = "; ".join(f'{tr["titulo"]} {tr["sub"]}: {milhar(valores[tr["id"]])}, nota {nota_de(valores[tr["id"]], tr["faixas"])[0]}'
+                    for tr in perfil["trofeus"])
+    alt += ". Marcos do Veryon: " + ", ".join(perfil["marcos"]) + "."
+    return svg(LARGURA, altura, "Troféus e marcos", alt, corpo, t.defs())

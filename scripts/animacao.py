@@ -1,112 +1,99 @@
-"""Animações SMIL reutilizáveis: máquina de escrever e odômetro.
+"""Animações reutilizáveis, todas por tempo (imagem não recebe clique nem mouse).
 
-SMIL é o jeito de animar SVG sem JavaScript, e o GitHub deixa passar quando o
-SVG é carregado como imagem. Todas as animações aqui são por tempo (nada de
-clique ou hover, que não funcionam em imagem).
+SMIL para o que tem hora marcada dentro de um ciclo (contagem, embaralhamento,
+etapas) e CSS para os laços contínuos. Quem usa estas funções coloca ao lado
+uma versão parada, para quem pediu menos movimento (ver base.movimento).
 """
-from base import P, esc, f
+from base import f, milhar, suave
+
+QUADRO = 0.045  # segundos por troca de letra, como no Glitch do portfólio
+POOLS = {
+    "maiuscula": "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&$",
+    "minuscula": "abcdefghijklmnopqrstuvwxyz",
+    "digito": "0123456789",
+    "outro": "/\\<>[]{}=+*?!",
+}
 
 
-def _discreto(eventos, duracao):
-    """Converte [(tempo, valor), ...] em keyTimes e values para calcMode="discrete"."""
-    tempos, valores = [], []
-    for tempo, valor in eventos:
-        fracao = min(tempo / duracao, 0.9999)
-        if tempos and fracao <= tempos[-1]:
-            continue
-        tempos.append(fracao)
-        valores.append(valor)
-    return ";".join(f"{t:.5f}" for t in tempos), ";".join(f(v) for v in valores)
+def _pool(ch):
+    if ch.isdigit():
+        return POOLS["digito"]
+    if ch.isalpha():
+        return POOLS["maiuscula"] if ch.isupper() else POOLS["minuscula"]
+    return POOLS["outro"]
 
 
-def digitacao(frases, x, y, tam, cor, id_="dg", t_digita=0.055, t_retem=1.9, t_apaga=0.022, t_pausa=0.45):
-    """Texto que digita, espera, apaga e passa para a próxima frase, em loop.
-
-    Retorna (defs, corpo). Cada frase é revelada por um retângulo de recorte
-    cuja largura sobe de caractere em caractere.
-    """
-    cw = tam * 0.6  # largura de um caractere em fonte monoespaçada
-    slots = [len(fr) * t_digita + t_retem + len(fr) * t_apaga + t_pausa for fr in frases]
-    total = sum(slots)
-    globais = [(0.0, 0.0)]
-    defs, corpo = [], []
-    inicio = 0.0
-    for i, (frase, slot) in enumerate(zip(frases, slots)):
-        n = len(frase)
-        eventos = [(inicio + k * t_digita, k * cw) for k in range(1, n + 1)]
-        t0 = inicio + n * t_digita + t_retem
-        eventos += [(t0 + k * t_apaga, (n - k) * cw) for k in range(1, n + 1)]
-        globais += eventos
-        tempos, larguras = _discreto([(0.0, 0.0)] + eventos, total)
-        defs.append(
-            f'<clipPath id="{id_}{i}"><rect x="{f(x)}" y="{f(y - tam)}" width="0" height="{f(tam * 1.5)}">'
-            f'<animate attributeName="width" dur="{f(total)}s" repeatCount="indefinite" '
-            f'calcMode="discrete" keyTimes="{tempos}" values="{larguras}"/></rect></clipPath>'
-        )
-        corpo.append(
-            f'<text class="m" x="{f(x)}" y="{f(y)}" font-size="{tam}" fill="{cor}" '
-            f'textLength="{f(n * cw)}" lengthAdjust="spacing" clip-path="url(#{id_}{i})">{esc(frase)}</text>'
-        )
-        inicio += slot
-    # cursor: acompanha a largura da frase que estiver ativa
-    globais.sort()
-    tempos, xs = _discreto([(t, x + w + 2) for t, w in globais], total)
-    corpo.append(
-        f'<rect x="{f(x)}" y="{f(y - tam * 0.9)}" width="{f(tam * 0.5)}" height="{f(tam * 1.1)}" fill="{cor}">'
-        f'<animate attributeName="x" dur="{f(total)}s" repeatCount="indefinite" calcMode="discrete" '
-        f'keyTimes="{tempos}" values="{xs}"/>'
-        '<animate attributeName="opacity" dur="1s" repeatCount="indefinite" calcMode="discrete" '
-        'keyTimes="0;0.55" values="1;0"/></rect>'
-    )
-    return "".join(defs), "".join(corpo)
+def janela(ciclo, ini, fim=None):
+    """<animate> que deixa o elemento visível entre `ini` e `fim` (segundos) de cada ciclo."""
+    pontos = []
+    if ini > 0:
+        pontos.append((0, "hidden"))
+    pontos.append((ini, "visible"))
+    if fim is not None and fim < ciclo:
+        pontos.append((fim, "hidden"))
+    tempos = ";".join(f"{t / ciclo:.5f}" for t, _ in pontos)
+    valores = ";".join(v for _, v in pontos)
+    return (f'<animate attributeName="visibility" dur="{f(ciclo)}s" repeatCount="indefinite" '
+            f'calcMode="discrete" keyTimes="{tempos}" values="{valores}"/>')
 
 
-def odometro(texto, cx, y_base, tam, cor, duracao, peso=700, esquerda=False):
-    """Número que rola como odômetro até o valor final.
+def degraus(ciclo, atributo, pontos):
+    """<animate> discreto de qualquer atributo: [(segundo, valor), ...], o primeiro em 0."""
+    if pontos[0][0] > 0:
+        raise ValueError("o primeiro ponto precisa estar no segundo 0")
+    tempos = ";".join(f"{t / ciclo:.5f}" for t, _ in pontos)
+    valores = ";".join(str(v) for _, v in pontos)
+    return (f'<animate attributeName="{atributo}" dur="{f(ciclo)}s" repeatCount="indefinite" '
+            f'calcMode="discrete" keyTimes="{tempos}" values="{valores}"/>')
 
-    `texto` já vem formatado (por exemplo '17.824'). Cada dígito é uma tira
-    vertical de dígitos dentro de uma janela do tamanho de uma linha; a tira
-    sobe até o dígito certo. O dígito da direita dá mais voltas, como num
-    contador de verdade. Retorna (corpo, largura_total).
-    """
-    cw = tam * 0.62  # célula de um dígito
-    sw = tam * 0.34  # célula do separador de milhar
-    larguras = [cw if c.isdigit() else sw for c in texto]
-    total = sum(larguras)
-    x = cx if esquerda else cx - total / 2
-    linha = tam * 1.25  # distância entre dígitos da tira (maior que a janela)
-    janela = tam * 1.15
-    topo = y_base - tam * 0.9
-    n_digitos = sum(c.isdigit() for c in texto)
+
+def conta(t, valor, x, y, chave, tam, cor, ciclo, inicio=0.15, duracao=1.8, ancora="start", formato=milhar):
+    """Número que conta de zero até o valor (o CountUp do portfólio: 1,8 s, curva suave)."""
+    quadros = []
+    n = 30
+    for k in range(n + 1):
+        v = round(valor * suave(k / n))
+        if not quadros or quadros[-1][1] != v:
+            quadros.append((inicio + duracao * k / n, v))
     partes = []
-    j = 0
-    for caractere, largura in zip(texto, larguras):
-        if not caractere.isdigit():
-            partes.append(
-                f'<text class="m" x="{f(x + largura / 2)}" y="{f(y_base)}" text-anchor="middle" '
-                f'font-size="{tam}" font-weight="{peso}" fill="{cor}">{esc(caractere)}</text>'
-            )
-        else:
-            digito = int(caractere)
-            da_direita = n_digitos - 1 - j
-            voltas = 2 if da_direita == 0 else (1 if da_direita == 1 else 0)
-            indice = 10 * voltas + digito
-            subida = indice * linha
-            tira = "".join(
-                f'<text class="m" x="{f(largura / 2)}" y="{f(tam * 0.9 + i * linha)}" text-anchor="middle" '
-                f'font-size="{tam}" font-weight="{peso}" fill="{cor}">{i % 10}</text>'
-                for i in range(indice + 1)
-            )
-            fim_rolagem = 0.03 + 2.4 / duracao
-            partes.append(
-                f'<svg x="{f(x)}" y="{f(topo)}" width="{f(largura)}" height="{f(janela)}">'
-                '<g><animateTransform attributeName="transform" type="translate" '
-                f'dur="{f(duracao)}s" repeatCount="indefinite" calcMode="spline" '
-                f'keyTimes="0;0.03;{fim_rolagem:.4f};0.985;1" '
-                'keySplines="0 0 1 1;0.16 1 0.3 1;0 0 1 1;0 0 1 1" '
-                f'values="0 0;0 0;0 -{f(subida)};0 -{f(subida)};0 0"/>'
-                f"{tira}</g></svg>"
-            )
-            j += 1
-        x += largura
-    return "".join(partes), total
+    for i, (instante, v) in enumerate(quadros):
+        fim = quadros[i + 1][0] if i + 1 < len(quadros) else None
+        partes.append(f'<g visibility="hidden">{janela(ciclo, instante, fim)}'
+                      f'{t.texto(formato(v), x, y, chave, tam, cor, ancora=ancora)}</g>')
+    return "".join(partes)
+
+
+def embaralha(t, texto, x, y, chave, tam, cor, ciclo, ini, fim, rng, duracao=0.42, espaco=0.0, ancora="start"):
+    """O texto aparece em `ini` embaralhado e assenta letra por letra; some em `fim`.
+
+    Igual ao Glitch do portfólio: as letras do começo tendem a assentar antes, e o
+    texto inteiro é redesenhado a cada 45 ms.
+    """
+    n = max(len(texto), 1)
+    assenta = [(i / n) * duracao * 0.55 + rng.random() * duracao * 0.45 for i in range(n)]
+    quadros = int(max(assenta) / QUADRO) + 1
+    partes = []
+    for k in range(quadros):
+        instante = k * QUADRO
+        estado = "".join(
+            c if (c == " " or instante >= assenta[i]) else rng.choice(_pool(c)) for i, c in enumerate(texto)
+        )
+        partes.append(f'<g visibility="hidden">{janela(ciclo, ini + instante, ini + instante + QUADRO)}'
+                      f'{t.texto(estado, x, y, chave, tam, cor, espaco, ancora)}</g>')
+    partes.append(f'<g visibility="hidden">{janela(ciclo, ini + quadros * QUADRO, fim)}'
+                  f'{t.texto(texto, x, y, chave, tam, cor, espaco, ancora)}</g>')
+    return "".join(partes)
+
+
+def tremor(ciclo, ini, duracao, rng, amplitude=3.0):
+    """<animateTransform> com os saltinhos do efeito de falha entre `ini` e `ini + duracao`."""
+    passos = 8
+    pontos = [] if ini <= 0 else [(0, "0 0")]
+    for k in range(passos):
+        pontos.append((ini + duracao * k / passos,
+                       f"{f(rng.uniform(-amplitude, amplitude))} {f(rng.uniform(-amplitude / 3, amplitude / 3))}"))
+    pontos.append((ini + duracao, "0 0"))
+    tempos = ";".join(f"{t / ciclo:.5f}" for t, _ in pontos)
+    valores = ";".join(v for _, v in pontos)
+    return (f'<animateTransform attributeName="transform" type="translate" dur="{f(ciclo)}s" '
+            f'repeatCount="indefinite" calcMode="discrete" keyTimes="{tempos}" values="{valores}"/>')
