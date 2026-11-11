@@ -1,48 +1,88 @@
 {
   "usuario": "omatosz",
   "nome": "Leandro Matos",
-  "faixa": "BLUE E RED TEAM",
-  "frases": [
-    "analista e desenvolvedor backend",
-    "formado em ADS, foco em cibersegurança",
-    "especializações em blue e red team",
-    "Veryon, um SOC/SIEM completo"
+  "topo": {
+    "rotulo": "Analista de suporte / Desenvolvedor backend",
+    "lead": "Construo sistemas de segurança de ponta a ponta, do honeypot que recebe o ataque ao painel que bloqueia o IP.",
+    "foco": "Foco em cibersegurança, com especialização em blue team e red team em andamento.",
+    "local": "São Paulo, BR",
+    "coordenadas": "23°33'S 46°38'W"
+  },
+  "fita": ["Blue team", "Red team", "Backend", "SOC/SIEM", "Detecção", "Resposta a incidentes", "Threat intel", "Python", "FastAPI", "Docker"],
+  "botoes": [
+    {"arquivo": "btn-portfolio", "rotulo": "Portfólio", "estilo": "vermelho", "ordem": 0},
+    {"arquivo": "btn-linkedin", "rotulo": "LinkedIn", "estilo": "contorno", "ordem": 1},
+    {"arquivo": "btn-email", "rotulo": "E-mail", "estilo": "contorno", "ordem": 2},
+    {"arquivo": "btn-repositorio", "rotulo": "Repositório", "estilo": "claro", "ordem": 0},
+    {"arquivo": "btn-landing", "rotulo": "Landing page", "estilo": "contorno", "ordem": 1}
   ],
-  "tecnologias_faixa": [
-    "COWRIE", "SIGMA", "MITRE ATT&CK", "NMAP", "NUCLEI", "ABUSEIPDB",
-    "VIRUSTOTAL", "OTX", "TIMESCALEDB", "FASTAPI", "REACT", "DOCKER"
-  ],
+  "sobre": {
+    "rotulo": "Sobre",
+    "titulo": "Entendo o sistema inteiro antes de defendê-lo.",
+    "destaque": "sistema inteiro",
+    "texto": [
+      "Sou analista de suporte e desenvolvedor backend, formado em Análise e Desenvolvimento de Sistemas pela UNIP, com foco em cibersegurança.",
+      "Me especializo em blue team e em red team, e aplico o que estudo em projetos próprios, construídos de ponta a ponta: da coleta do log ao bloqueio do IP, passando pela API, pelo banco de dados e pelos containers."
+    ],
+    "frentes": [
+      {"titulo": "Blue team", "texto": "Monitoramento, detecção com regras Sigma mapeadas ao MITRE ATT&CK, enriquecimento com threat intelligence e resposta a incidentes."},
+      {"titulo": "Red team", "texto": "Técnicas de ataque, varredura e exploração de vulnerabilidades, para saber exatamente o que a defesa precisa enxergar."},
+      {"titulo": "Backend", "texto": "APIs em Python com FastAPI e Flask, PostgreSQL e TimescaleDB, Redis e serviços orquestrados com Docker."}
+    ]
+  },
+  "veryon": {
+    "repositorio": "omatosz/veryon",
+    "rotulo": "Projeto em destaque",
+    "periodo": "Ago a set 2026",
+    "nome": "Veryon",
+    "linha": "SOC/SIEM completo, do ataque ao bloqueio",
+    "descricao": "Recebe ataques reais num honeypot, coleta logs de Windows e Linux, detecta com regras Sigma, cruza cada IP com três fontes de reputação e responde bloqueando em dois pontos da stack. A prevenção começa em modo de observação e respeita sete trilhos de segurança antes de agir sozinha.",
+    "verificado_em": "2026-10-15",
+    "numeros": [
+      {"chave": "servicos", "valor": 12, "rotulo": "serviços em containers"},
+      {"chave": "sinais", "valor": 8, "rotulo": "sinais de análise de API"},
+      {"chave": "politicas", "valor": 10, "rotulo": "políticas de prevenção"},
+      {"chave": "trilhos", "valor": 7, "rotulo": "trilhos de segurança"},
+      {"chave": "testes", "valor": 15, "rotulo": "testes automatizados"},
+      {"chave": "linhas", "valor": null, "rotulo": "linhas de código"}
+    ],
+    "caminho": "O caminho de um ataque",
+    "dica": "10 etapas, do honeypot ao relatório",
+    "etapas": [
+      {"nome": "Honeypot", "curto": "Honeypot", "fato": "Cowrie · SSH e Telnet", "texto": "Um servidor SSH e Telnet falso, isolado numa rede própria. Ninguém legítimo tem motivo para entrar ali, então todo login é um ataque."},
+      {"nome": "Coleta de logs", "curto": "Coleta", "fato": "Windows Event Log · auth.log", "texto": "Coletores leves leem o log de segurança do Windows e o auth.log do Linux, o mesmo sinal que um SOC recebe de servidores reais."},
+      {"nome": "Detecção", "curto": "Detecção", "fato": "Sigma · MITRE ATT&CK", "texto": "Um motor próprio avalia regras no formato Sigma, mapeadas ao MITRE ATT&CK: força bruta, execução de comando, abuso de privilégio e outras técnicas."},
+      {"nome": "Vulnerabilidades", "curto": "Vulnerab.", "fato": "Nmap · Nuclei", "texto": "Varreduras com assinatura estável: a mesma falha atualiza em vez de duplicar, e reabre sozinha se voltar depois de marcada como corrigida."},
+      {"nome": "Análise de API", "curto": "API", "fato": "8 sinais pontuados", "texto": "Oito sinais, como injeção, varredura de rotas e acesso sequencial a objetos, somam um score: acima de 70 vira alerta, acima de 90 vai para a prevenção."},
+      {"nome": "Threat intel", "curto": "Intel", "fato": "AbuseIPDB · VirusTotal · OTX", "texto": "Cada IP suspeito é cruzado com três fontes públicas de reputação: esse endereço já apareceu atacando em outro lugar?"},
+      {"nome": "Prevenção", "curto": "Prevenção", "fato": "10 políticas · 7 trilhos", "texto": "Políticas decidem o que o sistema faz sozinho. Toda política nasce observando, e a allowlist e a proteção de IPs internos sempre vencem."},
+      {"nome": "Painel", "curto": "Painel", "fato": "FastAPI + JWT · React", "texto": "API autenticada e painel de operação: fila de triagem, vulnerabilidades, chamadores de API pontuados e o mapa de origem dos IPs."},
+      {"nome": "Resposta", "curto": "Resposta", "fato": "Bloqueio em 2 pontos", "texto": "O bloqueio age ao mesmo tempo no firewall do honeypot e num middleware do backend, com prazo de validade e a opção de desfazer."},
+      {"nome": "Relatório", "curto": "Relatório", "fato": "PDF · HTML", "texto": "Resumo de segurança com alertas por severidade, técnicas observadas e os IPs mais ativos, pronto para entregar."}
+    ],
+    "stack": ["Python", "FastAPI", "PostgreSQL", "TimescaleDB", "Redis", "React", "TypeScript", "Docker"]
+  },
+  "projeto": {
+    "rotulo": "Outro projeto",
+    "status": "No ar",
+    "nome": "Portfólio",
+    "linha": "O site de onde este perfil tirou o visual",
+    "descricao": "Site pessoal com os projetos, a trajetória e o contato, em português e inglês. Publicado pela Vercel a cada push na main.",
+    "pontos": [
+      "Troca de idioma com efeito de falha",
+      "Nome que embaralha ao abrir e letras que esticam com o mouse",
+      "Formulário de contato que chega direto no e-mail"
+    ],
+    "stack": ["React", "Vite", "Tailwind CSS", "Motion"],
+    "botao": "Ver o código",
+    "repositorio": "omatosz/portfolio-leandro-react"
+  },
   "links": {
     "linkedin": "https://www.linkedin.com/in/leandromatossilva/",
     "email": "mailto:lehleoooo@icloud.com",
     "portfolio": "https://portfolio-leandro-react.vercel.app",
     "landing": "https://omatosz.github.io/veryon/",
     "veryon": "https://github.com/omatosz/veryon"
-  },
-  "veryon": {
-    "repositorio": "omatosz/veryon",
-    "titulo": "Veryon, um SOC/SIEM completo, do ataque ao bloqueio",
-    "subtitulo": "Honeypot, detecção, inteligência de ameaças, prevenção e resposta, orquestrados com Docker Compose.",
-    "numeros": {
-      "servicos": 12,
-      "sinais": 8,
-      "politicas": 10,
-      "trilhos": 7,
-      "testes": 15
-    },
-    "verificado_em": "2026-10-15",
-    "etapas": [
-      {"nome": "Honeypot", "detalhe": "cowrie"},
-      {"nome": "Coleta", "detalhe": "Windows, Linux"},
-      {"nome": "Detecção", "detalhe": "Sigma, ATT&CK"},
-      {"nome": "Vulnerab.", "detalhe": "Nmap, Nuclei"},
-      {"nome": "API", "detalhe": "8 sinais"},
-      {"nome": "Intel", "detalhe": "3 fontes"},
-      {"nome": "Prevenção", "detalhe": "10 políticas"},
-      {"nome": "Painel", "detalhe": "FastAPI, React"},
-      {"nome": "Resposta", "detalhe": "2 atuadores"},
-      {"nome": "Relatório", "detalhe": "PDF"}
-    ]
   },
   "marcos": [
     "Honeypot SSH e Telnet",
@@ -58,34 +98,40 @@
     "Relatório em PDF",
     "Pacote de deploy"
   ],
-  "stack": [
-    {"slug": "python", "nome": "Python"},
-    {"slug": "fastapi", "nome": "FastAPI"},
-    {"slug": "sqlalchemy", "nome": "SQLAlchemy"},
-    {"slug": "typescript", "nome": "TypeScript"},
-    {"slug": "react", "nome": "React"},
-    {"slug": "vite", "nome": "Vite"},
-    {"slug": "tailwindcss", "nome": "Tailwind"},
-    {"slug": "postgresql", "nome": "PostgreSQL"},
-    {"slug": "timescale", "nome": "TimescaleDB"},
-    {"slug": "redis", "nome": "Redis"},
-    {"slug": "docker", "nome": "Docker"},
-    {"slug": "linux", "nome": "Linux"},
-    {"slug": "git", "nome": "Git"},
-    {"slug": "githubactions", "nome": "Actions"}
-  ],
-  "estudo": [
-    "SIEM", "Sigma", "MITRE ATT&CK", "Honeypots", "Threat intel",
-    "Resposta a incidentes", "Nmap", "Nuclei", "Segurança de redes"
-  ],
+  "stack": {
+    "titulo": "Ferramentas e tecnologias",
+    "icones": [
+      {"slug": "python", "nome": "Python"},
+      {"slug": "fastapi", "nome": "FastAPI"},
+      {"slug": "sqlalchemy", "nome": "SQLAlchemy"},
+      {"slug": "postgresql", "nome": "PostgreSQL"},
+      {"slug": "timescale", "nome": "Timescale"},
+      {"slug": "redis", "nome": "Redis"},
+      {"slug": "docker", "nome": "Docker"},
+      {"slug": "linux", "nome": "Linux"},
+      {"slug": "git", "nome": "Git"},
+      {"slug": "githubactions", "nome": "Actions"},
+      {"slug": "typescript", "nome": "TypeScript"},
+      {"slug": "react", "nome": "React"},
+      {"slug": "vite", "nome": "Vite"},
+      {"slug": "tailwindcss", "nome": "Tailwind"}
+    ],
+    "grupos": [
+      {"grupo": "Segurança", "itens": ["Sigma", "MITRE ATT&CK", "Cowrie", "Nmap", "Nuclei", "AbuseIPDB", "VirusTotal", "OTX"]},
+      {"grupo": "Backend", "itens": ["Python", "FastAPI", "Flask", "SQLAlchemy", "PostgreSQL", "TimescaleDB", "Redis", "SQLite"]},
+      {"grupo": "Infraestrutura", "itens": ["Docker", "Docker Compose", "Linux", "Git", "GitHub Actions"]},
+      {"grupo": "Front-end", "itens": ["TypeScript", "React", "Vite", "Tailwind CSS"]}
+    ]
+  },
+  "rodape": "Gerado por script, atualizado todo dia",
   "repos_codigo": ["omatosz/veryon"],
   "xp_por_nivel": 25,
   "trofeus": [
-    {"id": "contribuicoes", "titulo": "Contribuições", "sub": "últimos 12 meses", "icone": "barras", "faixas": [1, 25, 100, 300, 700, 1500]},
-    {"id": "commits_veryon", "titulo": "Commits", "sub": "no Veryon", "icone": "commit", "faixas": [1, 10, 50, 200, 500, 1000]},
-    {"id": "linhas", "titulo": "Linhas de código", "sub": "no Veryon", "icone": "codigo", "faixas": [500, 3000, 20000, 60000, 150000, 400000]},
-    {"id": "repositorios", "titulo": "Repositórios", "sub": "públicos", "icone": "repo", "faixas": [1, 3, 10, 25, 60, 120]},
-    {"id": "linguagens", "titulo": "Linguagens", "sub": "nos repositórios", "icone": "chaves", "faixas": [1, 3, 6, 10, 15, 25]},
-    {"id": "testes", "titulo": "Testes", "sub": "automatizados no Veryon", "icone": "check", "faixas": [1, 10, 50, 150, 400, 1000]}
+    {"id": "contribuicoes", "titulo": "Contribuições", "sub": "últimos 12 meses", "faixas": [1, 25, 100, 300, 700, 1500]},
+    {"id": "commits_veryon", "titulo": "Commits", "sub": "no Veryon", "faixas": [1, 10, 50, 200, 500, 1000]},
+    {"id": "linhas", "titulo": "Linhas de código", "sub": "no Veryon", "faixas": [500, 3000, 20000, 60000, 150000, 400000]},
+    {"id": "repositorios", "titulo": "Repositórios", "sub": "públicos", "faixas": [1, 3, 10, 25, 60, 120]},
+    {"id": "linguagens", "titulo": "Linguagens", "sub": "nos repositórios", "faixas": [1, 3, 6, 10, 15, 25]},
+    {"id": "testes", "titulo": "Testes", "sub": "automatizados no Veryon", "faixas": [1, 10, 50, 150, 400, 1000]}
   ]
 }

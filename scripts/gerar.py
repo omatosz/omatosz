@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Gera os SVGs animados do perfil (banner, Veryon, números, troféus, stack,
-botões e a moldura da cobrinha). Usa só a biblioteca padrão do Python.
+"""Gera os SVGs animados do perfil, no visual do portfólio: banner, botões,
+Sobre, Veryon, números, troféus, stack, outro projeto e rodapé. Usa só a
+biblioteca padrão do Python.
 
 Uso local:
     python scripts/gerar.py --saida dist --veryon ../SOC.SIEM
 
 Na Action do GitHub, o repositório do Veryon é clonado numa pasta e passado
-em --veryon. Os textos e números fixos ficam em perfil.json.
+em --veryon. Os textos e números fixos ficam em perfil.json; o desenho das
+letras, em scripts/fontes/letras.json.
 """
 import argparse
 import datetime
@@ -22,8 +24,10 @@ import banner  # noqa: E402
 import botoes  # noqa: E402
 import cartao_github  # noqa: E402
 import cartao_veryon  # noqa: E402
-import cobrinha  # noqa: E402
 import dados as coleta  # noqa: E402
+import projeto  # noqa: E402
+import rodape  # noqa: E402
+import sobre  # noqa: E402
 import stack  # noqa: E402
 import trofeus  # noqa: E402
 
@@ -33,7 +37,6 @@ def main():
     ap.add_argument("--saida", default="dist", help="pasta onde os SVGs são gravados")
     ap.add_argument("--perfil", default=os.path.join(AQUI, "..", "perfil.json"))
     ap.add_argument("--veryon", required=True, help="pasta com um clone do repositório do Veryon")
-    ap.add_argument("--cobrinha", help="SVG bruto da cobrinha, para embrulhar no cartão")
     ap.add_argument("--cache", help="pasta de cache das respostas (só para desenvolvimento)")
     args = ap.parse_args()
 
@@ -45,16 +48,16 @@ def main():
 
     pecas = {
         "banner.svg": banner.desenhar(perfil),
+        "sobre.svg": sobre.desenhar(perfil),
         "veryon.svg": cartao_veryon.desenhar(perfil, dados),
         "github.svg": cartao_github.desenhar(perfil, dados),
         "trofeus.svg": trofeus.desenhar(perfil, dados),
         "stack.svg": stack.desenhar(perfil, dados),
+        "projeto.svg": projeto.desenhar(perfil),
+        "rodape.svg": rodape.desenhar(perfil, dados),
     }
-    for nome, texto in botoes.desenhar_todos().items():
+    for nome, texto in botoes.desenhar_todos(perfil).items():
         pecas[nome + ".svg"] = texto
-    if args.cobrinha:
-        with open(args.cobrinha, encoding="utf-8") as arq:
-            pecas["cobrinha.svg"] = cobrinha.compor(arq.read())
 
     # só grava depois de tudo pronto e válido, para nunca deixar arquivo pela metade
     for nome, texto in pecas.items():
@@ -63,7 +66,7 @@ def main():
     for nome, texto in pecas.items():
         with open(os.path.join(args.saida, nome), "w", encoding="utf-8", newline="\n") as arq:
             arq.write(texto)
-        print(f"{nome:<18} {len(texto.encode('utf-8')) / 1024:6.1f} KB")
+        print(f"{nome:<20} {len(texto.encode('utf-8')) / 1024:6.1f} KB")
     print(f"Gerado em {datetime.date.today():%d/%m/%Y}: {dados['contribuicoes']} contribuições, "
           f"{dados['linhas_total']} linhas, nível {dados['xp_total'] // perfil['xp_por_nivel'] + 1}.")
 

@@ -41,23 +41,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Gera a cobrinha do gráfico de contribuições
-        uses: Platane/snk/svg-only@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3.5.0
-        with:
-          github_user_name: omatosz
-          outputs: |
-            dist/cobrinha-bruta.svg?color_snake=#22d3ee&color_dots=#12233d,#164e63,#0e7490,#06b6d4,#67e8f9
-
       - name: Gera os SVGs do perfil
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/gerar.py --saida dist --veryon veryon --cobrinha dist/cobrinha-bruta.svg
+        run: python scripts/gerar.py --saida dist --veryon veryon
 
       - name: Publica na branch saida
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          rm dist/cobrinha-bruta.svg
           cd dist
           git init -q -b saida
           git config user.name "omatosz"

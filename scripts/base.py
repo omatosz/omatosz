@@ -1,33 +1,42 @@
-"""Paleta, fontes e pequenos utilitários de SVG usados por todas as peças."""
+"""Paleta, medidas e utilitários de SVG usados por todas as peças.
+
+O visual é o do portfólio (portfolio-leandro-react.vercel.app): preto, vermelho
+e cream, cantos retos, bordas finas e rótulos em mono entre colchetes. Os
+cartões têm fundo próprio, então funcionam nos temas claro e escuro do GitHub.
+"""
 import html
 
-# Cores. Os cartões têm fundo próprio (escuro), então funcionam nos temas
-# claro e escuro do GitHub.
+# Os mesmos tons do tema do portfólio (src/index.css).
 P = {
-    "fundo": "#060b14",
-    "fundo2": "#0b1a2f",
-    "painel": "#0e1a2e",
-    "painel2": "#12233d",
-    "linha": "#1c3050",
-    "texto": "#e6f0ff",
-    "mudo": "#8aa0c0",
-    "fraco": "#5b7191",
-    "ciano": "#22d3ee",
-    "ciano_claro": "#67e8f9",
-    "azul": "#3b82f6",
-    "verde": "#34d399",
-    "ambar": "#fbbf24",
-    "vermelho": "#fb7185",
-    "violeta": "#a78bfa",
+    "fundo": "#070606",      # ink-950
+    "painel": "#0e0c0c",     # ink-900
+    "painel2": "#171414",    # ink-800
+    "linha": "#262120",      # ink-700
+    "linha2": "#3b3432",     # ink-600
+    "vermelho_claro": "#ff4b3e",  # red-400
+    "vermelho": "#e8251c",   # red-500
+    "vermelho600": "#c21a12",
+    "vermelho700": "#8a120c",
+    "vermelho900": "#3a0905",
+    "creme": "#f4ecdc",      # cream-50
+    "creme100": "#e9e0cd",
+    "creme300": "#c8bfae",
+    "creme500": "#8e877b",
 }
 
-# Imagem SVG no GitHub não carrega fonte externa, então usamos as do sistema.
-FONTE_MONO = 'ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono","DejaVu Sans Mono",monospace'
-FONTE_SANS = 'system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'
+LARGURA = 1200
+MARGEM = 56
 
+# Curvas de movimento do portfólio: "soft" para entradas, "snap" para as tarjas.
+SOFT = "0.22 1 0.36 1"
+SNAP = "0.7 0 0.2 1"
+
+# Quem pede menos movimento no sistema vê a versão parada (.pr) no lugar da
+# animada (.mv). Vale para as animações em CSS e para as em SMIL.
 CSS_BASE = (
-    f".m{{font-family:{FONTE_MONO}}}"
-    f".s{{font-family:{FONTE_SANS}}}"
+    ".pr{display:none}"
+    "@media (prefers-reduced-motion:reduce){.mv{display:none}.pr{display:inline}"
+    "*{animation:none!important}}"
 )
 
 
@@ -47,46 +56,73 @@ def f(n):
     return "0" if texto in ("-0", "") else texto
 
 
-def svg(largura, altura, titulo, descricao, corpo, defs="", css=CSS_BASE):
+def svg(largura, altura, titulo, descricao, corpo, defs="", css=""):
     """Monta o documento SVG completo. O título e a descrição ajudam leitores de tela."""
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" '
-        f'width="{largura}" height="{altura}" role="img">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {f(altura)}" '
+        f'width="{largura}" height="{f(altura)}" role="img">'
         f"<title>{esc(titulo)}</title><desc>{esc(descricao)}</desc>"
-        f"<defs><style>{css}</style>{defs}</defs>{corpo}</svg>\n"
+        f"<defs><style>{CSS_BASE}{css}</style>{defs}</defs>{corpo}</svg>\n"
     )
 
 
-def ciclo(duracao, corpo):
-    """Faz o grupo aparecer, ficar visível e sumir em fade a cada ciclo.
+def movimento(animado, parado):
+    """A versão animada e a parada lado a lado; o CSS mostra uma das duas."""
+    return f'<g class="mv">{animado}</g><g class="pr">{parado}</g>'
 
-    As animações de contagem recomeçam no fim de cada ciclo; o fade esconde o
-    "pulo" de volta ao zero. Assim quem rola a página depois do carregamento
-    ainda vê os números rodando.
+
+def cartao(largura, altura, fundo=None, borda=None):
+    """Fundo do cartão com borda fina e cantos retos, como os do portfólio."""
+    fundo = fundo or P["painel"]
+    borda = borda or P["linha"]
+    return (f'<rect width="{largura}" height="{f(altura)}" fill="{fundo}"/>'
+            f'<rect x="0.5" y="0.5" width="{largura - 1}" height="{f(altura - 1)}" fill="none" stroke="{borda}"/>')
+
+
+def marcas(x0, y0, x1, y1, tam=14, cor=None, opacidade=0.25):
+    """Marcas de registro nos quatro cantos, como num visor."""
+    cor = cor or P["creme"]
+    d = (f"M{x0} {y0 + tam}V{y0}H{x0 + tam}"
+         f"M{x1 - tam} {y0}H{x1}V{y0 + tam}"
+         f"M{x0} {y1 - tam}V{y1}H{x0 + tam}"
+         f"M{x1 - tam} {y1}H{x1}V{y1 - tam}")
+    return f'<path d="{d}" fill="none" stroke="{cor}" stroke-opacity="{opacidade}"/>'
+
+
+def ciclo(duracao, corpo, entrada=0.02, saida=0.94):
+    """O grupo aparece, fica e some em fade a cada ciclo, para recomeçar a contagem.
+
+    Imagem não sabe quando entrou na tela; o ciclo garante que quem rola a página
+    depois do carregamento ainda veja os números contando.
     """
     return (
         '<g opacity="0">'
         f'<animate attributeName="opacity" dur="{f(duracao)}s" repeatCount="indefinite" '
-        'keyTimes="0;0.02;0.94;0.985;1" values="0;1;1;0;0"/>'
+        f'keyTimes="0;{entrada};{saida};{saida + 0.045:.3f};1" values="0;1;1;0;0"/>'
         f"{corpo}</g>"
     )
 
 
-def painel(largura, altura, raio=22, id_="rc"):
-    """Retorna (defs, fundo): clip arredondado e o retângulo de fundo com gradiente."""
-    defs = (
-        f'<clipPath id="{id_}"><rect width="{largura}" height="{altura}" rx="{raio}"/></clipPath>'
-        '<linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">'
-        f'<stop offset="0" stop-color="{P["fundo"]}"/><stop offset="1" stop-color="{P["fundo2"]}"/>'
-        "</linearGradient>"
-        '<pattern id="grade" width="40" height="40" patternUnits="userSpaceOnUse">'
-        f'<path d="M40 0H0V40" fill="none" stroke="{P["linha"]}" stroke-width="1" opacity="0.55"/>'
-        "</pattern>"
-    )
-    fundo = (
-        f'<rect width="{largura}" height="{altura}" rx="{raio}" fill="url(#fundo)"/>'
-        f'<rect width="{largura}" height="{altura}" rx="{raio}" fill="url(#grade)" opacity="0.5"/>'
-        f'<rect x="0.5" y="0.5" width="{largura - 1}" height="{altura - 1}" rx="{raio}" '
-        f'fill="none" stroke="{P["linha"]}"/>'
-    )
-    return defs, fundo
+def bezier(x1, y1, x2, y2):
+    """Curva cubic-bezier do CSS como função de 0..1 para 0..1."""
+    def eixo(t, a, b):
+        return 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3
+
+    def curva(x):
+        if x <= 0:
+            return 0.0
+        if x >= 1:
+            return 1.0
+        baixo, alto = 0.0, 1.0
+        for _ in range(40):
+            meio = (baixo + alto) / 2
+            if eixo(meio, x1, x2) < x:
+                baixo = meio
+            else:
+                alto = meio
+        return eixo((baixo + alto) / 2, y1, y2)
+
+    return curva
+
+
+suave = bezier(0.22, 1, 0.36, 1)
